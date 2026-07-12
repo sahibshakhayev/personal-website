@@ -27,7 +27,7 @@ services:
     # Removed ports! Only Nginx can talk to port 3000 now.
     environment:
       # Tell Next.js where to send client-side fetches
-      - NEXT_PUBLIC_API_URL=http://api.sahibshakhayev.tech
+      - NEXT_PUBLIC_API_URL=https://api.sahibshakhayev.tech
     restart: always
 
   # --- NEW: NGINX REVERSE PROXY ---
