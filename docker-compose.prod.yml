@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+    # Removed ports! Only Nginx can talk to port 8000 now.
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+    # Removed ports! Only Nginx can talk to port 3000 now.
+    environment:
+      # Tell Next.js where to send client-side fetches
+      - NEXT_PUBLIC_API_URL=http://api.mydomain.com 
+    restart: always
+
+  # --- NEW: NGINX REVERSE PROXY ---
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"  # The ONLY port exposed to the internet
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+
+volumes:
+  pgdata:
