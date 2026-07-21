@@ -23,11 +23,13 @@ services:
       - db
 
   frontend:
-    image: node:18-alpine
-    working_dir: /app
-    command: npm run dev
+    build:
+      context: ./frontend
+      target: development # <--- Tells Docker to stop at Stage 2
     volumes:
-      - ./frontend:/app # Syncs your local React code
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     ports:
       - "3000:3000"
     environment:
